@@ -69,7 +69,7 @@ arg_parser.add_argument('-n','--no-mac', default=False, action='store_true', hel
 arg_parser.add_argument('-o','--output', type=str, metavar='FILE', help='output host list to a file')
 
 # Default shell command to execute to restart dhcpd daemon
-arg_parser.add_argument('-r','--restart-command', type=str, default='service isc-dhcp-server restart', metavar='COMMAND', help='use alternative shell command to restart dhcpd')
+arg_parser.add_argument('-r','--restart-command', type=str, default='/etc/init.d/isc-dhcp-server restart', metavar='COMMAND', help='use alternative shell command to restart dhcpd')
 
 # Optional trigger file which can be used to indicate that the generated host
 # file has changed
@@ -135,7 +135,7 @@ if config.has_section(args.group):
   if args.restart is False and config.has_option(args.group,'restart'):
     args.restart = config.getboolean(args.group,'restart')
 
-  if args.restart_command is 'service isc-dhcp-server restart' and config.has_option(args.group,'restart-command'):
+  if args.restart_command is '/etc/init.d/isc-dhcp-server restart' and config.has_option(args.group,'restart-command'):
     args.restart_command = config.get(args.group,'restart-command')
 
   if args.restart_trigger is False and config.has_option(args.group,'restart-trigger'):

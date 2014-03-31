@@ -1,0 +1,18 @@
+#!/bin/sh
+
+# An example wrapper script that creates multiple host files using the same
+# trigger file and then restarts dhcpd if needed. Run it from crontab:
+#    */5 * * * * root /usr/local/sbin/phpipam-hosts-wrapper
+
+
+# Create single host file and restart dhcpd
+#phpipam-hosts -g hosts -x > /dev/null
+
+
+# Create multiple host files and restart dhcpd
+#phpipam-hosts -g group1
+#phpipam-hosts -g group2
+#phpipam-hosts -g group3
+#phpipam-hosts -X > /dev/null
+
+

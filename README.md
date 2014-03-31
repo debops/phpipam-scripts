@@ -52,13 +52,9 @@ daemon if host list is changed:
 
     */5 * * * * root /usr/local/sbin/phpipam-hosts -o /etc/dhcp/dhcpd-hosts.conf -x
 
-Example list of `cron` entries with multiple groups in default configuration
-file, which use a single trigger file to restart `dhcpd` daemon if any host
-list is changed:
-
-    */5 * * * * root /usr/local/sbin/phpipam-hosts --group group1
-    */5 * * * * root /usr/local/sbin/phpipam-hosts --group group2
-    */5 * * * * root /usr/local/sbin/phpipam-hosts --restart-trigger
+You can use an example `phpipam-hosts-wrapper` script to generate multiple host
+files and restart dhcpd if any one of them changes. To do that, you should
+configure different host files with the same trigger file.j
 
 ### License and copyright
 

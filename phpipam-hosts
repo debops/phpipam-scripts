@@ -3,7 +3,7 @@
 
 # phpipam-hosts: generate host lists from phpIPAM database
 # Copyright 2014 Maciej Delmanowski <drybjed@gmail.com>
-# Homepage: https://github.com/ginas/phpipam-scripts/
+# Homepage: https://github.com/debops/phpipam-scripts/
 # phpIPAM homepage: http://phpipam.net/
 
 

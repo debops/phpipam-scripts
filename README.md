@@ -61,6 +61,6 @@ configure different host files with the same trigger file.j
 License: GPLv3
 
 Copyright (C) 2014 Maciej Delmanwski <drybjed@gmail.com>  
-Homepage: [https://github.com/ginas/phpipam-scripts/](https://github.com/ginas/phpipam-scripts/)  
+Homepage: [https://github.com/debops/phpipam-scripts/](https://github.com/debops/phpipam-scripts/)  
 phpIPAM homepage: [http://phpipam.net/](http://phpipam.net/)
 

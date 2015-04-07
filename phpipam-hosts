@@ -332,8 +332,10 @@ try:
       else:
         if state != '3':
           host = args.prefix_dhcp + '-' + re.sub('\.', '-', ip)
+          fqdn = host
         else:
           host = args.prefix_dynamic + '-' + re.sub('\.', '-', ip)
+          fqdn = host
 
       # If mac address is specified, check it's validity.
       if row[1]:
@@ -373,7 +375,7 @@ try:
       if args.errors == False or (args.errors == True and mac_error):
 
         if args.format == 'dhcpd':
-          entry = '{}host {} {{\n'.format(comment, host)
+          entry = '{}host {} {{\n'.format(comment, fqdn)
           if mac:
             entry = entry + '{}{};\n'.format(comment, '        hardware ethernet ' + mac)
           if ip:

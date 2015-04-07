@@ -381,7 +381,7 @@ try:
           if args.ddns:
             entry = entry + '{}{};\n'.format(comment, '        ddns-hostname "' + host + '"')
           entry = entry + '{}{};\n'.format(comment, '        option host-name "' + host + '"')
-          entry = entry + '{}}};\n\n'.format(comment)
+          entry = entry + '{}}}\n\n'.format(comment)
           output = output + entry
 
         elif args.format == 'dnsmasq':

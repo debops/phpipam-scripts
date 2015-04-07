@@ -370,12 +370,16 @@ try:
       else:
         ip = False
 
+      # Create an unique host identifier for ISC DHCP
+      if args.format == 'dhcpd':
+        host_identifier = fqdn + "-" + re.sub(':', '', mac)
+
       # After all tests, if we have valid host data, generate a host entry and
       # add it to the output.
       if args.errors == False or (args.errors == True and mac_error):
 
         if args.format == 'dhcpd':
-          entry = '{}host {} {{\n'.format(comment, fqdn)
+          entry = '{}host {} {{\n'.format(comment, host_identifier)
           if mac:
             entry = entry + '{}{};\n'.format(comment, '        hardware ethernet ' + mac)
           if ip:

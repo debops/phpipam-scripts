@@ -58,13 +58,18 @@ config = ConfigParser.SafeConfigParser()
 config.read(args.config.name)
 
 
+# Fix the MAC address format
+def macAddr(mac):
+  return ':'.join([i.zfill(2) for i in mac.split(':')]).lower()
+
+
 # Convert IP address to its numerical value
 def ip2int(addr):
   return struct.unpack("!I", socket.inet_aton(addr))[0]
 
 
 if args.ip_addr and args.hw_addr:
-  query = 'UPDATE ipaddresses SET lastSeen = CURRENT_TIMESTAMP, editDate = editDate WHERE ip_addr = "' + str(ip2int(args.ip_addr)) + '" AND mac = "' + args.hw_addr + '"'
+  query = 'UPDATE ipaddresses SET lastSeen = CURRENT_TIMESTAMP, editDate = editDate WHERE ip_addr = "' + str(ip2int(args.ip_addr)) + '" AND mac = "' + str(macAddr(args.hw_addr)) + '"'
 
   try:
     db = MySQLdb.connect(read_default_file = args.config.name, read_default_group = 'mysql')

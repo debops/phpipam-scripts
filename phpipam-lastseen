@@ -1,0 +1,82 @@
+#!/usr/bin/env python
+# vim: set fileencoding=utf-8
+
+# phpipam-lastseen: mark the host as seen in the phpIPAM database
+# Copyright 2014 Maciej Delmanowski <drybjed@gmail.com>
+# Homepage: https://github.com/debops/phpipam-scripts/
+# phpIPAM homepage: http://phpipam.net/
+
+
+# This program is free software; you can redistribute
+# it and/or modify it under the terms of the
+# GNU General Public License as published by the Free
+# Software Foundation; either version 2 of the License,
+# or (at your option) any later version.
+#
+# This program is distributed in the hope that it will
+# be useful, but WITHOUT ANY WARRANTY; without even the
+# implied warranty of MERCHANTABILITY or FITNESS FOR A
+# PARTICULAR PURPOSE. See the GNU General Public
+# License for more details.
+#
+# You should have received a copy of the GNU General
+# Public License along with this program; if not,
+# write to the Free Software Foundation, Inc., 59
+# Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+# An on-line copy of the GNU General Public License can
+# be downloaded from the FSF web page at:
+# http://www.gnu.org/copyleft/gpl.html
+
+
+import os, sys, re, argparse, MySQLdb, string, socket, struct, ConfigParser, filecmp
+
+# Define script version
+script_version = 'v0.1'
+
+# Parse command line arguments and define defaults
+arg_parser = argparse.ArgumentParser(
+    prog='phpipam-lastseen',
+    description='Mark the host as seen in the phpIPAM database',
+    epilog='%(prog)s Copyright (C) 2015 Maciej Delmanowski <drybjed@gmail.com>\nLicense: GPLv3. Homepage: https://github.com/debops/phpipam-scripts/')
+
+arg_parser.add_argument('-i','--ip-addr', type=str, required=True, metavar='IPADDR', help='IP address of the host to update')
+arg_parser.add_argument('-m','--hw-addr', type=str, required=True, metavar='HWADDR', help='Hardware / MAC address of the host to update')
+
+# Default confguration file
+arg_parser.add_argument('-c','--config', type=file, default='/etc/dhcp/phpipam.conf', metavar='CONFIG', help='use alternative configuration file')
+
+# Display version
+arg_parser.add_argument('--version', action='version', version='%(prog)s ' + script_version)
+
+# Parse arguments
+args = arg_parser.parse_args()
+
+
+# Load and parse specified configuration file
+config = ConfigParser.SafeConfigParser()
+config.read(args.config.name)
+
+
+# Convert IP address to its numerical value
+def ip2int(addr):
+  return struct.unpack("!I", socket.inet_aton(addr))[0]
+
+
+if args.ip_addr and args.hw_addr:
+  query = 'UPDATE ipaddresses SET lastSeen = CURRENT_TIMESTAMP, editDate = editDate WHERE ip_addr = "' + str(ip2int(args.ip_addr)) + '" AND mac = "' + args.hw_addr + '"'
+
+  try:
+    db = MySQLdb.connect(read_default_file = args.config.name, read_default_group = 'mysql')
+    cursor = db.cursor()
+    cursor.execute(query)
+
+  except db.Error, e:
+    print "Error %d: %s" % (e.args[0],e.args[1])
+    sys.exit(1)
+
+  finally:
+    if db:
+      db.close()
+      sys.exit(0)
+

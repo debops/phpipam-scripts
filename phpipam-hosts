@@ -32,7 +32,7 @@
 import os, sys, re, argparse, MySQLdb, string, socket, struct, ConfigParser, filecmp
 
 # Define script version
-script_version = 'v0.1'
+script_version = 'v0.2'
 
 # Parse command line arguments and define defaults
 arg_parser = argparse.ArgumentParser(

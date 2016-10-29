@@ -32,7 +32,7 @@
 import os, sys, re, argparse, MySQLdb, string, socket, struct, ConfigParser, filecmp
 
 # Define script version
-script_version = 'v0.1'
+script_version = 'v0.2'
 
 # Parse command line arguments and define defaults
 arg_parser = argparse.ArgumentParser(
@@ -103,10 +103,10 @@ scope.add_argument('-u','--subnets', type=int, nargs='*', metavar='SUBNET')
 
 # Define host state to include in create host lists (active, reserved, offline or dhcp)
 state = arg_parser.add_argument_group('State','what host state to include in output')
-state.add_argument('-A','--active', dest='states', action='append_const', const=1, help='active hosts (default)')
-state.add_argument('-R','--reserved', dest='states', action='append_const', const=2, help='reserved hosts')
-state.add_argument('-O','--offline', dest='states', action='append_const', const=0, help='offline hosts')
-state.add_argument('-D','--dhcp', dest='states', action='append_const', const=3, help='dhcp ranges and dynamic hosts')
+state.add_argument('-A','--active', dest='states', action='append_const', const=2, help='active hosts (default)')
+state.add_argument('-R','--reserved', dest='states', action='append_const', const=3, help='reserved hosts')
+state.add_argument('-O','--offline', dest='states', action='append_const', const=1, help='offline hosts')
+state.add_argument('-D','--dhcp', dest='states', action='append_const', const=4, help='dhcp ranges and dynamic hosts')
 
 # Parse arguments
 args = arg_parser.parse_args()
@@ -152,32 +152,32 @@ if config.has_section(args.group):
 
   if config.has_option(args.group,'active'):
     if config.getboolean(args.group,'active'):
-      args.states.append(1)
-    else:
-      args.states = [x for x in args.states if x != 1]
-
-  if config.has_option(args.group,'reserved'):
-    if config.getboolean(args.group,'reserved'):
       args.states.append(2)
     else:
       args.states = [x for x in args.states if x != 2]
 
-  if config.has_option(args.group,'offline'):
-    if config.getboolean(args.group,'offline'):
-      args.states.append(0)
-    else:
-      args.states = [x for x in args.states if x != 0]
-
-  if config.has_option(args.group,'dhcp'):
-    if config.getboolean(args.group,'dhcp'):
+  if config.has_option(args.group,'reserved'):
+    if config.getboolean(args.group,'reserved'):
       args.states.append(3)
     else:
       args.states = [x for x in args.states if x != 3]
 
+  if config.has_option(args.group,'offline'):
+    if config.getboolean(args.group,'offline'):
+      args.states.append(1)
+    else:
+      args.states = [x for x in args.states if x != 1]
+
+  if config.has_option(args.group,'dhcp'):
+    if config.getboolean(args.group,'dhcp'):
+      args.states.append(4)
+    else:
+      args.states = [x for x in args.states if x != 4]
+
 # If no host state was specified on the command line or in the configuration
 # file, default to active hosts only.
 if args.states is None or not args.states:
-  args.states = [1]
+  args.states = [2]
 
 
 # Parse ethernet MAC address. If it is incorrect for some reason, return False,

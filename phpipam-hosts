@@ -32,7 +32,7 @@
 import os, sys, re, argparse, MySQLdb, string, socket, struct, ConfigParser, filecmp
 
 # Define script version
-script_version = 'v0.2'
+script_version = 'v0.2.1'
 
 # Parse command line arguments and define defaults
 arg_parser = argparse.ArgumentParser(
@@ -335,7 +335,7 @@ try:
       if hostname:
         host = hostname
       else:
-        if state != '3':
+        if state != '4':
           host = args.prefix_dhcp + '-' + re.sub('\.', '-', ip)
           fqdn = host
         else:
@@ -368,7 +368,7 @@ try:
       # DHCP, let's assume that it will get a dynamic IP address from
       # a pool). Also, if --dns option is enabled, write down hostname
       # instead of an IP address.
-      if row[3] is not None and row[3] != '3':
+      if row[3] is not None and row[3] != '4':
         if args.dns:
           if hostname:
             ip = '{}'.format(hostname)

@@ -324,6 +324,7 @@ try:
 
     for row in rows:
       fqdn = row[0]
+      fqdn.strip()
       hostname = fqdn.split('.')[0]
       ip = ipAddr(row[2])
       ip_real = ip

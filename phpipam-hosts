@@ -194,8 +194,18 @@ def ethernetAddr(s):
 
 # Convert IP address from its numerical value stored in the database.
 def ipAddr(s):
-  return socket.inet_ntoa(struct.pack('!L', int(s)))
+  if len(s) > 10:
+    ipv6_addr = 0
+    if hasattr(int, 'to_bytes'):
+      ipv6_addr = int(s).to_bytes(16, 'big')
+    else:
+      val = int(s)
+      h = '%x' % val
+      ipv6_addr = ('0' * (len(h) % 2) + h).decode('hex')
 
+    return socket.inet_ntop(socket.AF_INET6, ipv6_addr)
+
+  return socket.inet_ntoa(struct.pack('!L', int(s)))
 
 # If no section has been specified, list all sections available.
 def listSections():

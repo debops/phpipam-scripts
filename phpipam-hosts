@@ -407,9 +407,9 @@ try:
 
         elif args.format == 'dnsmasq':
           if not mac:
-            entry = '{},{}\n'.format(host, ip_real)
+            entry = '{},{}\n'.format(ip_real, host)
           else:
-            entry = '{}{},{},{}\n'.format(comment, mac, host, ip_real)
+            entry = '{}{},{},{}\n'.format(comment, mac, ip_real, host)
           output = output + entry
 
         elif args.format == 'hosts':

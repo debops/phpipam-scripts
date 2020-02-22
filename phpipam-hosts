@@ -29,7 +29,7 @@
 # http://www.gnu.org/copyleft/gpl.html
 
 
-import os, sys, re, argparse, MySQLdb, string, socket, struct, ConfigParser, filecmp
+import os, sys, re, argparse, MySQLdb, string, socket, struct, configparser, filecmp
 
 # Define script version
 script_version = 'v0.2.1'
@@ -115,7 +115,7 @@ if args.states is None:
 
 
 # Load and parse specified configuration file
-config = ConfigParser.SafeConfigParser()
+config = configparser.SafeConfigParser()
 config.read(args.config.name)
 
 if config.has_section(args.group):
@@ -227,8 +227,8 @@ def listSections():
       output  = output.rstrip('\n')
       print(output)
 
-  except db.Error, e:
-    fwrite(STDERR, "Error %d: %s\n" % (e.args[0],e.args[1]))
+  except db.Error as e:
+    print("Error %d: %s" % (e.args[0],e.args[1]))
     sys.exit(1)
 
   finally:
@@ -264,8 +264,8 @@ def listSubnets():
       output  = output.rstrip('\n')
       print(output)
 
-  except db.Error, e:
-    fwrite(STDERR, "Error %d: %s\n" % (e.args[0],e.args[1]))
+  except db.Error as e:
+    print("Error %d: %s" % (e.args[0],e.args[1]))
     sys.exit(1)
 
   finally:
@@ -337,19 +337,19 @@ try:
       try:
         fqdn = row[0].strip()
       except:
-        fwrite(STDERR, "Ignoring entry with FQDN missing: %s\n" % row_str)
+        print(("Ignoring entry with FQDN missing: %s" % row_str))
         continue
       hostname = fqdn.split('.')[0]
       try:
         ip = ipAddr(row[2])
       except:
-        fwrite(STDERR, "Ignoring entry with IP missing: %s\n" % row_str)
+        print(("Ignoring entry with IP missing: %s" % row_str))
         continue
       ip_real = ip
       try:
         state = row[3]
       except:
-        fwrite(STDERR, "Ignoring entry with STATE missing: %s\n" % row_str)
+        print(("Ignoring entry with STATE missing: %s" % row_str))
         continue
 
       #entry = ''
@@ -476,7 +476,7 @@ try:
               try:
                 open(os.path.realpath(args.trigger),'w').close()
               except:
-                fwrite(STDERR, "Error: cannot write to %s: access denied\n" % args.trigger)
+                print("Error: cannot write to %s: access denied" % args.trigger)
                 sys.exit(1)
 
             # If --restart is enabled and host list has been changed, restart
@@ -485,7 +485,7 @@ try:
               os.system(args.restart_command)
 
         except:
-          fwrite(STDERR, "Error: cannot write to %s: access denied\n" % args.output + '.tmp')
+          print("Error: cannot write to %s: access denied" % args.output + '.tmp')
           sys.exit(1)
 
       # There is no previous host list, so let's create a new one right away
@@ -502,7 +502,7 @@ try:
             try:
               open(os.path.realpath(args.trigger),'w').close()
             except:
-              fwrite(STDERR, "Error: cannot write to %s: access denied\n" % args.trigger)
+              print("Error: cannot write to %s: access denied" % args.trigger)
               sys.exit(1)
 
           # If --restart is enabled and host list has been changed, restart
@@ -511,7 +511,7 @@ try:
             os.system(args.restart_command)
 
         except:
-          fwrite(STDERR, "Error: cannot write to %s: access denied\n" % args.output)
+          print("Error: cannot write to %s: access denied" % args.output)
           sys.exit(1)
 
   # There is no output
@@ -522,8 +522,8 @@ try:
       if not os.path.isfile(os.path.realpath(args.output)):
         open(os.path.realpath(args.output),'w').close()
 
-except db.Error, e:
-  fwrite(STDERR, "Error %d: %s\n" % (e.args[0],e.args[1]))
+except db.Error as e:
+  print("Error %d: %s" % (e.args[0],e.args[1]))
   sys.exit(1)
 
 finally:
@@ -532,4 +532,3 @@ finally:
       db.close()
   except NameError:
     sys.exit(0)
-

@@ -225,10 +225,10 @@ def listSections():
         output = output + line
 
       output  = output.rstrip('\n')
-      print output
+      print(output)
 
   except db.Error, e:
-    print "Error %d: %s" % (e.args[0],e.args[1])
+    fwrite(STDERR, "Error %d: %s\n" % (e.args[0],e.args[1]))
     sys.exit(1)
 
   finally:
@@ -262,10 +262,10 @@ def listSubnets():
         output = output + line
 
       output  = output.rstrip('\n')
-      print output
+      print(output)
 
   except db.Error, e:
-    print "Error %d: %s" % (e.args[0],e.args[1])
+    fwrite(STDERR, "Error %d: %s\n" % (e.args[0],e.args[1]))
     sys.exit(1)
 
   finally:
@@ -337,19 +337,19 @@ try:
       try:
         fqdn = row[0].strip()
       except:
-        print("Ignoring entry with FQDN missing: %s" % row_str)
+        fwrite(STDERR, "Ignoring entry with FQDN missing: %s\n" % row_str)
         continue
       hostname = fqdn.split('.')[0]
       try:
         ip = ipAddr(row[2])
       except:
-        print("Ignoring entry with IP missing: %s" % row_str)
+        fwrite(STDERR, "Ignoring entry with IP missing: %s\n" % row_str)
         continue
       ip_real = ip
       try:
         state = row[3]
       except:
-        print("Ignoring entry with STATE missing: %s" % row_str)
+        fwrite(STDERR, "Ignoring entry with STATE missing: %s\n" % row_str)
         continue
 
       #entry = ''
@@ -452,7 +452,7 @@ try:
     # If no output file is specified, or stdout is specified, print the output
     # to stdout.
     if args.output is None or args.output == '-':
-      print output
+      print(output)
 
     # Otherwise, write the output to a specified file.
     else:
@@ -476,7 +476,7 @@ try:
               try:
                 open(os.path.realpath(args.trigger),'w').close()
               except:
-                print "Error: cannot write to %s: access denied" % args.trigger
+                fwrite(STDERR, "Error: cannot write to %s: access denied\n" % args.trigger)
                 sys.exit(1)
 
             # If --restart is enabled and host list has been changed, restart
@@ -485,7 +485,7 @@ try:
               os.system(args.restart_command)
 
         except:
-          print "Error: cannot write to %s: access denied" % args.output + '.tmp'
+          fwrite(STDERR, "Error: cannot write to %s: access denied\n" % args.output + '.tmp')
           sys.exit(1)
 
       # There is no previous host list, so let's create a new one right away
@@ -502,7 +502,7 @@ try:
             try:
               open(os.path.realpath(args.trigger),'w').close()
             except:
-              print "Error: cannot write to %s: access denied" % args.trigger
+              fwrite(STDERR, "Error: cannot write to %s: access denied\n" % args.trigger)
               sys.exit(1)
 
           # If --restart is enabled and host list has been changed, restart
@@ -511,7 +511,7 @@ try:
             os.system(args.restart_command)
 
         except:
-          print "Error: cannot write to %s: access denied" % args.output
+          fwrite(STDERR, "Error: cannot write to %s: access denied\n" % args.output)
           sys.exit(1)
 
   # There is no output
@@ -523,7 +523,7 @@ try:
         open(os.path.realpath(args.output),'w').close()
 
 except db.Error, e:
-  print "Error %d: %s" % (e.args[0],e.args[1])
+  fwrite(STDERR, "Error %d: %s\n" % (e.args[0],e.args[1]))
   sys.exit(1)
 
 finally:

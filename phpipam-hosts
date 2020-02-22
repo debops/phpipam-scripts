@@ -41,20 +41,20 @@ arg_parser = argparse.ArgumentParser(
     epilog='%(prog)s Copyright (C) 2014 Maciej Delmanowski <drybjed@gmail.com>\nLicense: GPLv3. Homepage: https://github.com/ginas/phpipam-scripts/')
 
 # Default confguration file
-arg_parser.add_argument('-c','--config', type=file, default='/etc/dhcp/phpipam.conf', metavar='CONFIG', help='use alternative configuration file')
+arg_parser.add_argument('-c','--config', default='/etc/dhcp/phpipam.conf', metavar='CONFIG', help='use alternative configuration file')
 
 # Use DNS hostnames instead of IP addresses in generated host lists
 arg_parser.add_argument('-d','--dns', default=False, action='store_true', help='write host names instead of IP addresses')
 
 # Output format
-arg_parser.add_argument('-f','--format', type=str, default='dhcpd', choices=['dhcpd','dnsmasq','hosts','ethers'], help='output format (default: dhcpd)')
+arg_parser.add_argument('-f','--format', default='dhcpd', choices=['dhcpd','dnsmasq','hosts','ethers'], help='output format (default: dhcpd)')
 
 # Default configuration section to use by default
-arg_parser.add_argument('-g','--group', type=str, default='hosts', help='configuration section to use (default: hosts)')
+arg_parser.add_argument('-g','--group', default='hosts', help='configuration section to use (default: hosts)')
 
 # Generated hostname prefixes for dhcp and dynamic hosts
-arg_parser.add_argument('-i','--prefix-dhcp', type=str, default='dhcp', metavar='PREFIX', help='prefix for hosts without hostname')
-arg_parser.add_argument('-j','--prefix-dynamic', type=str, default='dynamic', metavar='PREFIX', help='prefix for hosts without static IP address')
+arg_parser.add_argument('-i','--prefix-dhcp', default='dhcp', metavar='PREFIX', help='prefix for hosts without hostname')
+arg_parser.add_argument('-j','--prefix-dynamic', default='dynamic', metavar='PREFIX', help='prefix for hosts without static IP address')
 
 # By default script will create empty files to avoid problems with missing
 # includes in dhcpd and dnsmasq
@@ -66,14 +66,14 @@ arg_parser.add_argument('-n','--no-mac', default=False, action='store_true', hel
 
 # Optional output file. If one is configured in the configuration options, you
 # can set '-o -' to output to stdout
-arg_parser.add_argument('-o','--output', type=str, metavar='FILE', help='output host list to a file')
+arg_parser.add_argument('-o','--output', metavar='FILE', help='output host list to a file')
 
 # Default shell command to execute to restart dhcpd daemon
-arg_parser.add_argument('-r','--restart-command', type=str, default='/etc/init.d/isc-dhcp-server restart', metavar='COMMAND', help='use alternative shell command to restart dhcpd')
+arg_parser.add_argument('-r','--restart-command', default='/etc/init.d/isc-dhcp-server restart', metavar='COMMAND', help='use alternative shell command to restart dhcpd')
 
 # Optional trigger file which can be used to indicate that the generated host
 # file has changed
-arg_parser.add_argument('-t','--trigger', type=str, metavar='FILE', help='create trigger file if host file has changed')
+arg_parser.add_argument('-t','--trigger', metavar='FILE', help='create trigger file if host file has changed')
 
 # If this option is enabled, script will restart dhcpd daemon using specified
 # shell command
@@ -116,7 +116,7 @@ if args.states is None:
 
 # Load and parse specified configuration file
 config = configparser.SafeConfigParser()
-config.read(args.config.name)
+config.read(args.config)
 
 if config.has_section(args.group):
 
@@ -126,7 +126,7 @@ if config.has_section(args.group):
   if args.ddns is False and config.has_option(args.group,'ddns'):
     args.ddns = config.getboolean(args.group,'ddns')
 
-  if args.format is 'dhcpd' and config.has_option(args.group,'format'):
+  if args.format == 'dhcpd' and config.has_option(args.group,'format'):
     args.format = config.get(args.group,'format')
 
   if args.output is None and config.has_option(args.group,'output'):
@@ -135,7 +135,7 @@ if config.has_section(args.group):
   if args.restart is False and config.has_option(args.group,'restart'):
     args.restart = config.getboolean(args.group,'restart')
 
-  if args.restart_command is '/etc/init.d/isc-dhcp-server restart' and config.has_option(args.group,'restart-command'):
+  if args.restart_command == '/etc/init.d/isc-dhcp-server restart' and config.has_option(args.group,'restart-command'):
     args.restart_command = config.get(args.group,'restart-command')
 
   if args.restart_trigger is False and config.has_option(args.group,'restart-trigger'):
@@ -212,7 +212,7 @@ def listSections():
   query = 'SELECT id,name,description FROM sections ORDER BY id ASC'
 
   try:
-    db = MySQLdb.connect(read_default_file = args.config.name, read_default_group = 'mysql')
+    db = MySQLdb.connect(read_default_file = args.config, read_default_group = 'mysql')
     cursor = db.cursor()
     cursor.execute(query)
 
@@ -248,7 +248,7 @@ def listSubnets():
 
   query = query + 'ORDER BY subnet ASC'
   try:
-    db = MySQLdb.connect(read_default_file = args.config.name, read_default_group = 'mysql')
+    db = MySQLdb.connect(read_default_file = args.config, read_default_group = 'mysql')
     cursor = db.cursor()
     cursor.execute(query)
 
@@ -317,7 +317,7 @@ if args.subnets is not None and args.subnets:
 query = query + "state IN (" + ','.join(map(str, args.states)) + ") ORDER BY ip_addr ASC"
 
 try:
-  db = MySQLdb.connect(read_default_file = args.config.name, read_default_group = 'mysql')
+  db = MySQLdb.connect(read_default_file = args.config, read_default_group = 'mysql')
   cursor = db.cursor()
   cursor.execute(query)
 

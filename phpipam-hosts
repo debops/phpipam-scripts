@@ -228,8 +228,7 @@ def listSections():
       print(output)
 
   except db.Error as e:
-    print("Error %d: %s" % (e.args[0],e.args[1]))
-    sys.exit(1)
+    sys.exit("Error %d: %s" % (e.args[0],e.args[1]))
 
   finally:
     if db:
@@ -265,8 +264,7 @@ def listSubnets():
       print(output)
 
   except db.Error as e:
-    print("Error %d: %s" % (e.args[0],e.args[1]))
-    sys.exit(1)
+    sys.exit("Error %d: %s" % (e.args[0],e.args[1]))
 
   finally:
     if db:
@@ -337,19 +335,19 @@ try:
       try:
         fqdn = row[0].strip()
       except:
-        print(("Ignoring entry with FQDN missing: %s" % row_str))
+        print("Warning: Ignoring entry with FQDN missing: %s" % row_str, file=sys.stderr)
         continue
       hostname = fqdn.split('.')[0]
       try:
         ip = ipAddr(row[2])
       except:
-        print(("Ignoring entry with IP missing: %s" % row_str))
+        print("Warning: Ignoring entry with IP missing: %s" % row_str, file=sys.stderr)
         continue
       ip_real = ip
       try:
         state = row[3]
       except:
-        print(("Ignoring entry with STATE missing: %s" % row_str))
+        print("Warning: Ignoring entry with STATE missing: %s" % row_str, file=sys.stderr)
         continue
 
       #entry = ''
@@ -476,8 +474,7 @@ try:
               try:
                 open(os.path.realpath(args.trigger),'w').close()
               except:
-                print("Error: cannot write to %s: access denied" % args.trigger)
-                sys.exit(1)
+                sys.exit("Error: cannot write to %s: access denied" % args.trigger)
 
             # If --restart is enabled and host list has been changed, restart
             # dhcpd daemon.
@@ -485,8 +482,7 @@ try:
               os.system(args.restart_command)
 
         except:
-          print("Error: cannot write to %s: access denied" % args.output + '.tmp')
-          sys.exit(1)
+          sys.exit("Error: cannot write to %s: access denied" % args.output + '.tmp')
 
       # There is no previous host list, so let's create a new one right away
       # without a temporary file.
@@ -502,8 +498,7 @@ try:
             try:
               open(os.path.realpath(args.trigger),'w').close()
             except:
-              print("Error: cannot write to %s: access denied" % args.trigger)
-              sys.exit(1)
+              sys.exit("Error: cannot write to %s: access denied" % args.trigger)
 
           # If --restart is enabled and host list has been changed, restart
           # dhcpd daemon.
@@ -511,8 +506,7 @@ try:
             os.system(args.restart_command)
 
         except:
-          print("Error: cannot write to %s: access denied" % args.output)
-          sys.exit(1)
+          sys.exit("Error: cannot write to %s: access denied" % args.output)
 
   # There is no output
   else:
@@ -523,8 +517,7 @@ try:
         open(os.path.realpath(args.output),'w').close()
 
 except db.Error as e:
-  print("Error %d: %s" % (e.args[0],e.args[1]))
-  sys.exit(1)
+  sys.exit("Error %d: %s" % (e.args[0],e.args[1]))
 
 finally:
   try:

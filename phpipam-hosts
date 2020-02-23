@@ -115,7 +115,7 @@ if args.states is None:
 
 
 # Load and parse specified configuration file
-config = configparser.SafeConfigParser()
+config = configparser.ConfigParser()
 config.read(args.config)
 
 if config.has_section(args.group):

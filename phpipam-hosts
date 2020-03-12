@@ -29,7 +29,7 @@
 # http://www.gnu.org/copyleft/gpl.html
 
 
-import os, sys, re, argparse, MySQLdb, string, socket, struct, ConfigParser, filecmp
+import os, sys, re, argparse, MySQLdb, string, socket, struct, configparser, filecmp
 
 # Define script version
 script_version = 'v0.2.1'
@@ -41,20 +41,20 @@ arg_parser = argparse.ArgumentParser(
     epilog='%(prog)s Copyright (C) 2014 Maciej Delmanowski <drybjed@gmail.com>\nLicense: GPLv3. Homepage: https://github.com/ginas/phpipam-scripts/')
 
 # Default confguration file
-arg_parser.add_argument('-c','--config', type=file, default='/etc/dhcp/phpipam.conf', metavar='CONFIG', help='use alternative configuration file')
+arg_parser.add_argument('-c','--config', default='/etc/dhcp/phpipam.conf', metavar='CONFIG', help='use alternative configuration file')
 
 # Use DNS hostnames instead of IP addresses in generated host lists
 arg_parser.add_argument('-d','--dns', default=False, action='store_true', help='write host names instead of IP addresses')
 
 # Output format
-arg_parser.add_argument('-f','--format', type=str, default='dhcpd', choices=['dhcpd','dnsmasq','hosts','ethers'], help='output format (default: dhcpd)')
+arg_parser.add_argument('-f','--format', default='dhcpd', choices=['dhcpd','dnsmasq','hosts','ethers'], help='output format (default: dhcpd)')
 
 # Default configuration section to use by default
-arg_parser.add_argument('-g','--group', type=str, default='hosts', help='configuration section to use (default: hosts)')
+arg_parser.add_argument('-g','--group', default='hosts', help='configuration section to use (default: hosts)')
 
 # Generated hostname prefixes for dhcp and dynamic hosts
-arg_parser.add_argument('-i','--prefix-dhcp', type=str, default='dhcp', metavar='PREFIX', help='prefix for hosts without hostname')
-arg_parser.add_argument('-j','--prefix-dynamic', type=str, default='dynamic', metavar='PREFIX', help='prefix for hosts without static IP address')
+arg_parser.add_argument('-i','--prefix-dhcp', default='dhcp', metavar='PREFIX', help='prefix for hosts without hostname')
+arg_parser.add_argument('-j','--prefix-dynamic', default='dynamic', metavar='PREFIX', help='prefix for hosts without static IP address')
 
 # By default script will create empty files to avoid problems with missing
 # includes in dhcpd and dnsmasq
@@ -66,14 +66,14 @@ arg_parser.add_argument('-n','--no-mac', default=False, action='store_true', hel
 
 # Optional output file. If one is configured in the configuration options, you
 # can set '-o -' to output to stdout
-arg_parser.add_argument('-o','--output', type=str, metavar='FILE', help='output host list to a file')
+arg_parser.add_argument('-o','--output', metavar='FILE', help='output host list to a file')
 
 # Default shell command to execute to restart dhcpd daemon
-arg_parser.add_argument('-r','--restart-command', type=str, default='/etc/init.d/isc-dhcp-server restart', metavar='COMMAND', help='use alternative shell command to restart dhcpd')
+arg_parser.add_argument('-r','--restart-command', default='/etc/init.d/isc-dhcp-server restart', metavar='COMMAND', help='use alternative shell command to restart dhcpd')
 
 # Optional trigger file which can be used to indicate that the generated host
 # file has changed
-arg_parser.add_argument('-t','--trigger', type=str, metavar='FILE', help='create trigger file if host file has changed')
+arg_parser.add_argument('-t','--trigger', metavar='FILE', help='create trigger file if host file has changed')
 
 # If this option is enabled, script will restart dhcpd daemon using specified
 # shell command
@@ -115,8 +115,8 @@ if args.states is None:
 
 
 # Load and parse specified configuration file
-config = ConfigParser.SafeConfigParser()
-config.read(args.config.name)
+config = configparser.ConfigParser()
+config.read(args.config)
 
 if config.has_section(args.group):
 
@@ -126,7 +126,7 @@ if config.has_section(args.group):
   if args.ddns is False and config.has_option(args.group,'ddns'):
     args.ddns = config.getboolean(args.group,'ddns')
 
-  if args.format is 'dhcpd' and config.has_option(args.group,'format'):
+  if args.format == 'dhcpd' and config.has_option(args.group,'format'):
     args.format = config.get(args.group,'format')
 
   if args.output is None and config.has_option(args.group,'output'):
@@ -135,7 +135,7 @@ if config.has_section(args.group):
   if args.restart is False and config.has_option(args.group,'restart'):
     args.restart = config.getboolean(args.group,'restart')
 
-  if args.restart_command is '/etc/init.d/isc-dhcp-server restart' and config.has_option(args.group,'restart-command'):
+  if args.restart_command == '/etc/init.d/isc-dhcp-server restart' and config.has_option(args.group,'restart-command'):
     args.restart_command = config.get(args.group,'restart-command')
 
   if args.restart_trigger is False and config.has_option(args.group,'restart-trigger'):
@@ -212,7 +212,7 @@ def listSections():
   query = 'SELECT id,name,description FROM sections ORDER BY id ASC'
 
   try:
-    db = MySQLdb.connect(read_default_file = args.config.name, read_default_group = 'mysql')
+    db = MySQLdb.connect(read_default_file = args.config, read_default_group = 'mysql')
     cursor = db.cursor()
     cursor.execute(query)
 
@@ -225,11 +225,10 @@ def listSections():
         output = output + line
 
       output  = output.rstrip('\n')
-      print output
+      print(output)
 
-  except db.Error, e:
-    print "Error %d: %s" % (e.args[0],e.args[1])
-    sys.exit(1)
+  except db.Error as e:
+    sys.exit("Error %d: %s" % (e.args[0],e.args[1]))
 
   finally:
     if db:
@@ -248,7 +247,7 @@ def listSubnets():
 
   query = query + 'ORDER BY subnet ASC'
   try:
-    db = MySQLdb.connect(read_default_file = args.config.name, read_default_group = 'mysql')
+    db = MySQLdb.connect(read_default_file = args.config, read_default_group = 'mysql')
     cursor = db.cursor()
     cursor.execute(query)
 
@@ -262,11 +261,10 @@ def listSubnets():
         output = output + line
 
       output  = output.rstrip('\n')
-      print output
+      print(output)
 
-  except db.Error, e:
-    print "Error %d: %s" % (e.args[0],e.args[1])
-    sys.exit(1)
+  except db.Error as e:
+    sys.exit("Error %d: %s" % (e.args[0],e.args[1]))
 
   finally:
     if db:
@@ -299,7 +297,7 @@ if args.subnets is not None and not args.subnets:
 
 # ---- Host list / host file generation ----
 
-query = "SELECT dns_name,mac,ip_addr,state FROM ipaddresses WHERE "
+query = "SELECT hostname,mac,ip_addr,state FROM ipaddresses WHERE "
 
 # Don't include hosts without specified MAC addresses by default.
 if args.no_mac is False:
@@ -317,7 +315,7 @@ if args.subnets is not None and args.subnets:
 query = query + "state IN (" + ','.join(map(str, args.states)) + ") ORDER BY ip_addr ASC"
 
 try:
-  db = MySQLdb.connect(read_default_file = args.config.name, read_default_group = 'mysql')
+  db = MySQLdb.connect(read_default_file = args.config, read_default_group = 'mysql')
   cursor = db.cursor()
   cursor.execute(query)
 
@@ -337,19 +335,19 @@ try:
       try:
         fqdn = row[0].strip()
       except:
-        print("Ignoring entry with FQDN missing: %s" % row_str)
+        print("Warning: Ignoring entry with FQDN missing: %s" % row_str, file=sys.stderr)
         continue
       hostname = fqdn.split('.')[0]
       try:
         ip = ipAddr(row[2])
       except:
-        print("Ignoring entry with IP missing: %s" % row_str)
+        print("Warning: Ignoring entry with IP missing: %s" % row_str, file=sys.stderr)
         continue
       ip_real = ip
       try:
         state = row[3]
       except:
-        print("Ignoring entry with STATE missing: %s" % row_str)
+        print("Warning: Ignoring entry with STATE missing: %s" % row_str, file=sys.stderr)
         continue
 
       #entry = ''
@@ -452,7 +450,7 @@ try:
     # If no output file is specified, or stdout is specified, print the output
     # to stdout.
     if args.output is None or args.output == '-':
-      print output
+      print(output)
 
     # Otherwise, write the output to a specified file.
     else:
@@ -476,8 +474,7 @@ try:
               try:
                 open(os.path.realpath(args.trigger),'w').close()
               except:
-                print "Error: cannot write to %s: access denied" % args.trigger
-                sys.exit(1)
+                sys.exit("Error: cannot write to %s: access denied" % args.trigger)
 
             # If --restart is enabled and host list has been changed, restart
             # dhcpd daemon.
@@ -485,8 +482,7 @@ try:
               os.system(args.restart_command)
 
         except:
-          print "Error: cannot write to %s: access denied" % args.output + '.tmp'
-          sys.exit(1)
+          sys.exit("Error: cannot write to %s: access denied" % args.output + '.tmp')
 
       # There is no previous host list, so let's create a new one right away
       # without a temporary file.
@@ -502,8 +498,7 @@ try:
             try:
               open(os.path.realpath(args.trigger),'w').close()
             except:
-              print "Error: cannot write to %s: access denied" % args.trigger
-              sys.exit(1)
+              sys.exit("Error: cannot write to %s: access denied" % args.trigger)
 
           # If --restart is enabled and host list has been changed, restart
           # dhcpd daemon.
@@ -511,8 +506,7 @@ try:
             os.system(args.restart_command)
 
         except:
-          print "Error: cannot write to %s: access denied" % args.output
-          sys.exit(1)
+          sys.exit("Error: cannot write to %s: access denied" % args.output)
 
   # There is no output
   else:
@@ -522,9 +516,8 @@ try:
       if not os.path.isfile(os.path.realpath(args.output)):
         open(os.path.realpath(args.output),'w').close()
 
-except db.Error, e:
-  print "Error %d: %s" % (e.args[0],e.args[1])
-  sys.exit(1)
+except db.Error as e:
+  sys.exit("Error %d: %s" % (e.args[0],e.args[1]))
 
 finally:
   try:
@@ -532,4 +525,3 @@ finally:
       db.close()
   except NameError:
     sys.exit(0)
-

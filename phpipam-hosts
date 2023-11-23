@@ -274,6 +274,16 @@ def listSubnets():
     sys.exit(0)
 
 
+# check if hostname is a valid DNS hostname (DNS names requirements RFC952+RFC1123)
+def is_valid_hostname(hostname):
+    if len(hostname) > 255:
+        return False
+    if hostname[-1] == ".":
+        hostname = hostname[:-1] # strip exactly one dot from the right, if present
+    allowed = re.compile("(?!-)[A-Z\d-]{1,63}(?<!-)$", re.IGNORECASE)
+    return all(allowed.match(x) for x in hostname.split("."))
+
+
 # ---- Main script starts here ----
 
 # If --restart-trigger is enabled, check if trigger file exists. If it does,
@@ -354,8 +364,8 @@ try:
 
       #entry = ''
 
-      # Check the hostname. If it's not specified, generate one.
-      if hostname:
+      # Check the hostname. If it was not specified or invalid then generate one.
+      if hostname and is_valid_hostname(hostname):
         host = hostname
       else:
         if state != '4':
